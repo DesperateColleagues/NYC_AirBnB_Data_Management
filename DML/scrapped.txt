@@ -22,3 +22,23 @@ SET perimeter_text = ST_AsText(perimeter);
 ALTER TABLE neighborhoods DROP COLUMN perimeter;
 ALTER TABLE neighborhoods RENAME COLUMN perimeter_text TO perimeter;
 */
+
+
+
+
+
+
+WITH temp AS (
+	SELECT p.id, n.borough, COUNT(*) n
+	FROM parks p, neighborhoods n 
+	WHERE ST_Intersects(n.perimeter, p.perimeter) 
+	GROUP BY p.id, n.borough
+	ORDER BY n DESC
+) SELECT id FROM temp GROUP BY id HAVING COUNT(*) >= 2;
+
+SELECT p.id, n.borough, COUNT(*) n
+FROM parks p, neighborhoods n 
+WHERE ST_Intersects(n.perimeter, p.perimeter) AND 
+		p.id IN (28, 1  372, 1398, 1430, 1510, 1584, 1847, 1986, 1993, 2008)
+GROUP BY p.id, n.borough
+ORDER BY id;
