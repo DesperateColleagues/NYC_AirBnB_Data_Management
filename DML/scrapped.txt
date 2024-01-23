@@ -1,0 +1,24 @@
+--- 5) Change perimeter column type in its text form
+-- TODO: establish if this procedure is really needed
+/*
+ALTER TABLE parks ADD COLUMN perimeter_text text;
+
+UPDATE parks
+SET perimeter_text = St_AsText(perimeter);
+
+ALTER TABLE parks DROP COLUMN perimeter;
+ALTER TABLE parks RENAME COLUMN perimeter_text TO perimeter;
+*/
+
+
+-- 3) Change perimeter column type in its text form
+-- TODO: establish if this procedure is really needed
+/*
+ALTER TABLE neighborhoods ADD COLUMN perimeter_text text;
+
+UPDATE neighborhoods
+SET perimeter_text = ST_AsText(perimeter);
+
+ALTER TABLE neighborhoods DROP COLUMN perimeter;
+ALTER TABLE neighborhoods RENAME COLUMN perimeter_text TO perimeter;
+*/
