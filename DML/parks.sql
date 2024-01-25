@@ -15,6 +15,7 @@ SET boroughs = (
 	SELECT ARRAY(
 		SELECT n.borough::char(2)
 		FROM parks p2, neighborhoods n 
-		WHERE ST_Intersects(n.perimeter, p2.perimeter) AND p2.id = P1.id
+		WHERE ST_Intersects(n.perimeter, p2.perimeter) AND 
+			  p2.id = P1.id
 		GROUP BY p2.id, n.borough
-))
+));
