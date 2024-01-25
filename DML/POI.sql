@@ -69,6 +69,10 @@ DELETE
 FROM poi 
 WHERE domain LIKE '';
 
+-- 2) Change SRID
+UPDATE poi
+SET coordinates = ST_SetSRID(coordinates, 4326);
+
 -- THIS FUNCTION IS A GENERALIZATION OF ALL THE FUNCTION ABOVE
 -- CREATE FUNCTION Fill_column_table(data_ varchar[], table_name_ varchar, column_name_ varchar, column_index_ varchar)
 -- RETURNS VOID

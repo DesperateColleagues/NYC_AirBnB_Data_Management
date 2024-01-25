@@ -10,3 +10,7 @@ SET borough = (
 	FROM borough b
 	WHERE b.name = n.borough
 );
+
+-- 3) Change SRID
+UPDATE neighborhoods
+SET perimeter = ST_SetSRID(perimeter, 4326);

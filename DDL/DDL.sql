@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS crimes (
 	longitude FLOAT
 );
 
+SELECT AddGeometryColumn ('crimes','coordinates', 4326, 'POINT', 2);
+
 -- This table will contain the hosts
 CREATE TABLE IF NOT EXISTS hosts (
 	id BIGINT PRIMARY KEY,
@@ -36,6 +38,8 @@ CREATE TABLE IF NOT EXISTS bnb_house (
 	longitude FLOAT NOT NULL,
 	host BIGINT NOT NULL
 );
+
+SELECT AddGeometryColumn ('bnb_house','coordinates', 4326, 'POINT', 2);
 
 -- This table will contain the room's rents associated to a particular bnb house
 CREATE TABLE IF NOT EXISTS rent (
@@ -67,6 +71,8 @@ CREATE TABLE IF NOT EXISTS house_sales (
 	longitude FLOAT
 ); 
 
+SELECT AddGeometryColumn ('house_sales','coordinates', 4326, 'POINT', 2);
+
 -- This table will contain every NYC subway stop
 CREATE TABLE IF NOT EXISTS subway_stops (
 	id VARCHAR(3) PRIMARY KEY,
@@ -75,6 +81,7 @@ CREATE TABLE IF NOT EXISTS subway_stops (
 	longitude FLOAT NOT NULL
 );
 
+SELECT AddGeometryColumn ('subway_stops','coordinates', 4326, 'POINT', 2);
 
 -- This tables will contain every POIs and POIs' types
 ALTER TABLE poi RENAME COLUMN gid TO id;
@@ -145,11 +152,15 @@ ALTER TABLE roads RENAME COLUMN borocode TO borough;
 ALTER TABLE roads RENAME COLUMN trafdir TO traffic_direction;
 ALTER TABLE roads RENAME COLUMN st_label TO name;
 ALTER TABLE roads RENAME COLUMN geom TO path;
-
+ 
 CREATE TABLE roads_new AS 
 	SELECT id, borough, traffic_direction, name, status, path
 	FROM roads;
-
+ 
 DROP TABLE roads;
-
+ 
 ALTER TABLE roads_new RENAME TO roads;
+
+
+
+

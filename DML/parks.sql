@@ -20,3 +20,7 @@ SET boroughs = (
 			  p2.id = P1.id
 		GROUP BY p2.id, n.borough
 ));
+
+-- 4) Change SRID
+UPDATE parks
+SET perimeter = ST_SetSRID(perimeter, 4326);

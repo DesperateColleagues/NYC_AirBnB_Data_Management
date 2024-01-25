@@ -26,3 +26,7 @@ WITH status_mapping AS (
 		FROM status_mapping sm
 		WHERE n.status = sm.digit
 	);
+	
+-- 4) Change SRID
+UPDATE roads
+SET path = ST_SetSRID(path, 4326);
