@@ -10,6 +10,7 @@ UPDATE parks
 SET perimeter = ST_MakeValid(perimeter)
 WHERE ST_IsValid(perimeter) = 'False';
 
+-- 3) Set parks' borough
 UPDATE parks p1
 SET boroughs = (
 	SELECT ARRAY(

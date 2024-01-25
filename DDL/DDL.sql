@@ -145,15 +145,11 @@ ALTER TABLE roads RENAME COLUMN borocode TO borough;
 ALTER TABLE roads RENAME COLUMN trafdir TO traffic_direction;
 ALTER TABLE roads RENAME COLUMN st_label TO name;
 ALTER TABLE roads RENAME COLUMN geom TO path;
- 
+
 CREATE TABLE roads_new AS 
 	SELECT id, borough, traffic_direction, name, status, path
 	FROM roads;
- 
+
 DROP TABLE roads;
- 
+
 ALTER TABLE roads_new RENAME TO roads;
-
-
-
-
