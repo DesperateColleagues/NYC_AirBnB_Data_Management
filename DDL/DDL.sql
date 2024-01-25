@@ -123,3 +123,37 @@ CREATE TABLE parks_new AS
 DROP TABLE parks;
 
 ALTER TABLE parks_new RENAME TO parks; 
+
+-- This table will contain every bus stop
+ALTER TABLE bus_stops RENAME COLUMN gid TO id;
+ALTER TABLE bus_stops RENAME COLUMN shelter_id TO name;
+ALTER TABLE bus_stops RENAME COLUMN geom TO coordinates;
+
+ALTER TABLE bus_stops ADD COLUMN neighborhood INTEGER;
+
+CREATE TABLE bus_stops_new AS 
+	SELECT id, name, corner, neighborhood, coordinates 
+	FROM bus_stops;
+
+DROP TABLE bus_stops;
+
+ALTER TABLE bus_stops_new RENAME TO bus_stops;
+
+-- This table will contain information about NYC roads
+ALTER TABLE roads RENAME COLUMN gid TO id;
+ALTER TABLE roads RENAME COLUMN borocode TO borough;
+ALTER TABLE roads RENAME COLUMN trafdir TO traffic_direction;
+ALTER TABLE roads RENAME COLUMN st_label TO name;
+ALTER TABLE roads RENAME COLUMN geom TO path;
+ 
+CREATE TABLE roads_new AS 
+	SELECT id, borough, traffic_direction, name, status, path
+	FROM roads;
+ 
+DROP TABLE roads;
+ 
+ALTER TABLE roads_new RENAME TO roads;
+
+
+
+
