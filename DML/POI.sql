@@ -4,11 +4,11 @@ CREATE OR REPLACE FUNCTION Fill_poi_type(varchar[])
 RETURNS VOID
 AS $$
 BEGIN
-   for i in 1..array_length($1, 1) loop
+   FOR i IN 1..array_length($1, 1) LOOP
     UPDATE poi_type
 	SET type_desc = $1[i]
 	WHERE id = i;
-   end loop;
+   END LOOP;
 END $$
 LANGUAGE plpgsql;
 
@@ -63,6 +63,11 @@ SELECT Update_domain_column(ARRAY [ARRAY ['Gated Development', 'Private Developm
 								   ARRAY ['Island', 'River', 'Lake', 'Stream', 'Other', 'Pond', '', '', '', '', '', '', '', '', '', '', '', ''],
 								   ARRAY ['Official Landmark', 'Point of Interest', 'Cemetery/Morgue', 'Other', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
 								  ])
+			
+-- 3) Delete rows where 'domain' colomn value is empty string
+DELETE 
+FROM poi 
+WHERE domain LIKE '';
 
 -- THIS FUNCTION IS A GENERALIZATION OF ALL THE FUNCTION ABOVE
 -- CREATE FUNCTION Fill_column_table(data_ varchar[], table_name_ varchar, column_name_ varchar, column_index_ varchar)
