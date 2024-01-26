@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS house_sales (
 	longitude FLOAT
 ); 
 
+-- TODO DA SPOSTARE NEL DDL DI house_sales
 SELECT AddGeometryColumn ('house_sales','coordinates', 4326, 'POINT', 2);
 
 -- This tables will contain every POIs and POIs' types

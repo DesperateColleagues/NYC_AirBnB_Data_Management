@@ -12,6 +12,8 @@ CREATE TABLE crimes AS (
 	FROM nypd_arrests
 );
 
+ALTER TABLE crimes ADD COLUMN neighborhoods INTEGER;
+
 -- Add the geometry column to crimes for spatial data
 SELECT AddGeometryColumn ('crimes','coordinates', 4326, 'POINT', 2);
 
