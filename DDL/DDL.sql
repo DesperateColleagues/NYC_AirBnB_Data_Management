@@ -4,59 +4,67 @@ CREATE TABLE IF NOT EXISTS borough (
 	name VARCHAR(15)
 );
 
--- This table will contain every crime types
-CREATE TABLE IF NOT EXISTS crime_types (
-	id SMALLINT PRIMARY KEY,
-	description VARCHAR(100) NOT NULL
+-- This table will load CSV data about bnb listings
+CREATE TABLE listings (
+	id BIGINT,
+    name VARCHAR(255),
+    host_id INT,
+    host_name VARCHAR(255),
+    neighbourhood_group VARCHAR(255),
+    neighbourhood VARCHAR(255),
+    latitude FLOAT,
+    longitude FLOAT,
+    bnb_type VARCHAR(255),
+    price INT,
+    minimum_nights INT,
+    number_of_reviews INT,
+    last_review DATE,
+    reviews_per_month FLOAT,
+    calculated_host_listings_count INT,
+    availability_365 DECIMAL,
+    number_of_reviews_ltm INT,
+    license VARCHAR(255),
+	rate VARCHAR(10),
+	room_type VARCHAR(255),
+	n_beds VARCHAR(10),
+	n_baths VARCHAR(10),
+	is_bath_shared BOOLEAN
 );
 
--- This table will contain crimes made in NYC
-CREATE TABLE IF NOT EXISTS crimes (
-	id BIGINT PRIMARY KEY,
-	arrest_date DATE,
-	crime_type SMALLINT,
-	latitude FLOAT, 
-	longitude FLOAT
+-- This table will load csv data about arrests in nyc
+CREATE TABLE IF NOT EXISTS nypd_Arrests (
+    ARREST_KEY INT,
+    ARREST_DATE DATE,
+    PD_CD INT,
+    PD_DESC VARCHAR(255),
+    KY_CD FLOAT,
+    OFNS_DESC VARCHAR(255),
+    LAW_CODE VARCHAR(50),
+    LAW_CAT_CD VARCHAR(50),
+    ARREST_BORO VARCHAR(50),
+    ARREST_PRECINCT INT,
+    JURISDICTION_CODE INT,
+    AGE_GROUP VARCHAR(50),
+    PERP_SEX VARCHAR(50),
+    PERP_RACE VARCHAR(50),
+    X_COORD_CD INT,
+    Y_COORD_CD INT,
+    Latitude FLOAT,
+    Longitude FLOAT
 );
 
-SELECT AddGeometryColumn ('crimes','coordinates', 4326, 'POINT', 2);
-
--- This table will contain the hosts
-CREATE TABLE IF NOT EXISTS hosts (
-	id BIGINT PRIMARY KEY,
-	name TEXT NOT NULL
-);
-
--- This table will contain every bnb house listed in new york city
-CREATE TABLE IF NOT EXISTS bnb_house (
-	id BIGINT PRIMARY KEY,
-	name TEXT NOT NULL,
-	availability_rate_365 FLOAT,
-	rate FLOAT,
-	number_of_reviews INTEGER,
-	latitude FLOAT NOT NULL,
-	longitude FLOAT NOT NULL,
-	host BIGINT NOT NULL
-);
-
-SELECT AddGeometryColumn ('bnb_house','coordinates', 4326, 'POINT', 2);
-
--- This table will contain the room's rents associated to a particular bnb house
-CREATE TABLE IF NOT EXISTS rent (
-	id INTEGER PRIMARY KEY, 
-	room_type TEXT,
-	n_beds INTEGER, 
-	n_baths FLOAT,
-	is_bath_shared BOOLEAN, 
-	bnb_house BIGINT
-);
-
--- This table will contain every fare existed for a particular bnb rent
-CREATE TABLE IF NOT EXISTS rent_fare (
-	id INTEGER PRIMARY KEY,
-	price FLOAT NOT NULL, 
-	minimum_nights SMALLINT,
-	rent INTEGER NOT NULL
+-- This table will load subway stops in nyc
+CREATE TABLE subway_stops (
+    stop_id VARCHAR(50) PRIMARY KEY,
+    stop_code FLOAT,
+    stop_name VARCHAR(255),
+    stop_desc FLOAT,
+    stop_lat FLOAT,
+    stop_lon FLOAT,
+    zone_id FLOAT,
+    stop_url FLOAT,
+    location_type INT,
+    parent_station VARCHAR(50)
 );
 
 -- This table will contain every house sales in NYC
@@ -72,16 +80,6 @@ CREATE TABLE IF NOT EXISTS house_sales (
 ); 
 
 SELECT AddGeometryColumn ('house_sales','coordinates', 4326, 'POINT', 2);
-
--- This table will contain every NYC subway stop
-CREATE TABLE IF NOT EXISTS subway_stops (
-	id VARCHAR(3) PRIMARY KEY,
-	name TEXT NOT NULL,
-	latitude FLOAT NOT NULL, 
-	longitude FLOAT NOT NULL
-);
-
-SELECT AddGeometryColumn ('subway_stops','coordinates', 4326, 'POINT', 2);
 
 -- This tables will contain every POIs and POIs' types
 ALTER TABLE poi RENAME COLUMN gid TO id;
@@ -160,7 +158,3 @@ CREATE TABLE roads_new AS
 DROP TABLE roads;
  
 ALTER TABLE roads_new RENAME TO roads;
-
-
-
-

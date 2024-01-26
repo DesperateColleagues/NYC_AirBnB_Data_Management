@@ -1,5 +1,13 @@
--- 1) Fill in the "type_desc" column of the "poi_type" table with the currisponding code description
+-- 1) Change SRID
+UPDATE poi
+SET coordinates = ST_SetSRID(coordinates, 4326);
 
+-- 2) Turn the invalid geometries to valid ones
+UPDATE poi 
+SET coordinates = ST_MakeValid(coordinates)
+WHERE St_IsValid(coordinates) = 'False';
+
+-- 3) Fill in the "type_desc" column of the "poi_type" table with the currisponding code description
 CREATE OR REPLACE FUNCTION Fill_poi_type(varchar[])
 RETURNS VOID
 AS $$
@@ -28,7 +36,7 @@ SELECT Fill_poi_type(ARRAY ['Residential',
 							'Miscellaneous' ])
 
 
--- 2) Update the "domain" column of the "poi" table with the currisponding code description
+-- 4) Update the "domain" column of the "poi" table with the currisponding code description
 CREATE OR REPLACE FUNCTION Update_domain_column(data_ varchar[])
 RETURNS VOID
 AS $$
@@ -64,14 +72,10 @@ SELECT Update_domain_column(ARRAY [ARRAY ['Gated Development', 'Private Developm
 								   ARRAY ['Official Landmark', 'Point of Interest', 'Cemetery/Morgue', 'Other', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
 								  ])
 			
--- 3) Delete rows where 'domain' colomn value is empty string
+-- 5) Delete rows where 'domain' colomn value is empty string
 DELETE 
 FROM poi 
 WHERE domain LIKE '';
-
--- 2) Change SRID
-UPDATE poi
-SET coordinates = ST_SetSRID(coordinates, 4326);
 
 -- THIS FUNCTION IS A GENERALIZATION OF ALL THE FUNCTION ABOVE
 -- CREATE FUNCTION Fill_column_table(data_ varchar[], table_name_ varchar, column_name_ varchar, column_index_ varchar)

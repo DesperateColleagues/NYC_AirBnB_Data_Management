@@ -1,16 +1,20 @@
--- 1) Remove parks tuples that are not actual parks
+-- 1) Change SRID
+UPDATE parks
+SET perimeter = ST_SetSRID(perimeter, 4326);
+
+-- 2) Remove parks tuples that are not actual parks
 DELETE FROM parks 
 WHERE category IN (
 	'Strip', 'Lot', 'Parkway', 'Cemetery',
 	'Waterfront Facility', 'Undeveloped', 'Mall'
 );
 						 
--- 2) Turn the invalid geometries to valid ones
+-- 3) Turn the invalid geometries to valid ones
 UPDATE parks 
 SET perimeter = ST_MakeValid(perimeter)
 WHERE ST_IsValid(perimeter) = 'False';
 
--- 3) Set parks' borough
+-- 4) Set parks' borough
 UPDATE parks p1
 SET boroughs = (
 	SELECT ARRAY(
@@ -20,7 +24,3 @@ SET boroughs = (
 			  p2.id = P1.id
 		GROUP BY p2.id, n.borough
 ));
-
--- 4) Change SRID
-UPDATE parks
-SET perimeter = ST_SetSRID(perimeter, 4326);
