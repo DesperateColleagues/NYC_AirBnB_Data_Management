@@ -1,5 +1,5 @@
 -- This table will contain every borough
-CREATE TABLE IF NOT EXISTS borough (
+CREATE TABLE IF NOT EXISTS boroughs (
 	id CHAR(2) NOT NULL PRIMARY KEY,
 	name VARCHAR(15)
 );
@@ -67,6 +67,7 @@ CREATE TABLE subway_stops (
     parent_station VARCHAR(50)
 );
 
+-- TODO DA SPOSTARE NEL DDL DI house_sales
 -- This table will contain every house sales in NYC
 CREATE TABLE IF NOT EXISTS house_sales (
 	id BIGINT PRIMARY KEY,
@@ -79,7 +80,9 @@ CREATE TABLE IF NOT EXISTS house_sales (
 	longitude FLOAT
 ); 
 
--- TODO DA SPOSTARE NEL DDL DI house_sales
+-- Adds the neighborhood column that will be a foreign key
+ALTER TABLE house_sales ADD COLUMN neighborhood INTEGER;
+
 SELECT AddGeometryColumn ('house_sales','coordinates', 4326, 'POINT', 2);
 
 -- This tables will contain every POIs and POIs' types
@@ -87,18 +90,21 @@ ALTER TABLE poi RENAME COLUMN gid TO id;
 ALTER TABLE poi RENAME COLUMN faci_dom TO domain;
 ALTER TABLE poi RENAME COLUMN geom TO coordinates;
 
-CREATE TABLE poi_type AS (SELECT DISTINCT facility_t::INTEGER FROM poi);
-ALTER TABLE poi_type RENAME COLUMN facility_t TO id;
+-- Adds the neighborhood column that will be a foreign key
+ALTER TABLE poi ADD COLUMN neighborhood INTEGER;
 
-ALTER TABLE poi_type ADD COLUMN type_desc VARCHAR(50);
+CREATE TABLE poi_types AS (SELECT DISTINCT facility_t::INTEGER FROM poi);
+ALTER TABLE poi_types RENAME COLUMN facility_t TO id;
 
-CREATE TABLE POI_NEW AS (
-	SELECT id, name, domain, facility_t::INTEGER as poi_type, coordinates FROM poi
+ALTER TABLE poi_types ADD COLUMN type_desc VARCHAR(50);
+
+CREATE TABLE poi_new AS (
+	SELECT id, name, domain, facility_t::INTEGER as poi_type, neighborhood, coordinates FROM poi
 );
 
 DROP TABLE poi;
 
-ALTER TABLE POI_NEW RENAME TO poi;
+ALTER TABLE poi_new RENAME TO poi;
 
 -- This table will contain every neighborhoods
 ALTER TABLE neighborhoods RENAME COLUMN gid TO id;

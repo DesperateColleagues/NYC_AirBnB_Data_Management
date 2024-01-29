@@ -11,6 +11,6 @@ WHERE St_IsValid(perimeter) = 'False';
 UPDATE neighborhoods n
 SET borough = (
 	SELECT id 
-	FROM borough b
+	FROM boroughs b
 	WHERE b.name = n.borough
 );
