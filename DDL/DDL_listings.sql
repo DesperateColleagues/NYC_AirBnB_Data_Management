@@ -5,7 +5,7 @@ CREATE TABLE bnb_houses AS (
 	FROM listings
 );
 
-SELECT AddGeometryColumn ('bnb_house','coordinates', 4326, 'POINT', 2);
+SELECT AddGeometryColumn ('bnb_houses','coordinates', 4326, 'POINT', 2);
 
 -- Adds the neighborhood column that will be a foreign key
 ALTER TABLE bnb_houses ADD COLUMN neighborhood INTEGER;
@@ -17,19 +17,19 @@ CREATE TABLE hosts AS (
 	GROUP BY host_id, host_name
 );
 
-CREATE TABLE rent AS (
+CREATE TABLE rents AS (
 	SELECT room_type, n_beds, n_baths, is_bath_shared, id AS bnb_house
 	FROM listings
 );
 	
-ALTER TABLE rent ADD COLUMN id SERIAL;
+ALTER TABLE rents ADD COLUMN id SERIAL;
 
-CREATE TABLE rent_fare AS (
+CREATE TABLE rent_fares AS (
 	SELECT price, minimum_nights, r.id AS rent
-	FROM rent AS r, listings AS l
+	FROM rents AS r, listings AS l
 	WHERE r.bnb_house = l.id
 );	
 	
-ALTER TABLE rent_fare ADD COLUMN id SERIAL;
+ALTER TABLE rent_fares ADD COLUMN id SERIAL;
 
 DROP TABLE listings;
