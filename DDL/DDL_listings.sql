@@ -1,9 +1,13 @@
 ALTER TABLE listings RENAME COLUMN availability_365 TO availability_rate_365;
 
 CREATE TABLE bnb_houses AS (
-	SELECT id, name, availability_rate_365, rate, number_of_reviews, latitude, longitude, host_id as host
+	SELECT id, name, availability_rate_365, rate, number_of_reviews, latitude, longitude, host_id as host, license AS old_license
 	FROM listings
 );
+
+-- new_license attribute will be filled in the dml_bnb_houses.sql file, and in this file there are still
+-- the renaming of the 'new_license' attribute to 'license' and the deletion of 'old_license' attribute.
+ALTER TABLE bnb_houses ADD COLUMN new_license BOOLEAN DEFAULT false;
 
 SELECT AddGeometryColumn ('bnb_houses','coordinates', 4326, 'POINT', 2);
 
