@@ -19,24 +19,30 @@ ALTER TABLE crimes
 ALTER TABLE hosts 
 	ADD CONSTRAINT pk_hosts PRIMARY KEY(id);
 	
--- Constraints for "bnb_house" table
-ALTER TABLE bnb_houses 
-	ADD CONSTRAINT pk_bnb_houses PRIMARY KEY(id),
-	ADD CONSTRAINT fk_bnb_houses_hosts FOREIGN KEY(host) REFERENCES hosts(id)
+-- Constraints for "rental_units" table
+ALTER TABLE rental_units 
+	ADD CONSTRAINT pk_rental_units PRIMARY KEY(id),
+	ADD CONSTRAINT fk_rental_units_hosts FOREIGN KEY(host) REFERENCES hosts(id)
 		ON DELETE CASCADE ON UPDATE CASCADE,
-	ADD CONSTRAINT fk_bnb_houses_neighborhoods FOREIGN KEY(neighborhood) REFERENCES neighborhoods(id)
+	ADD CONSTRAINT fk_rental_units_neighborhoods FOREIGN KEY(neighborhood) REFERENCES neighborhoods(id)
 		ON DELETE CASCADE ON UPDATE CASCADE;
 
--- Constraints for "rent" table
-ALTER TABLE rents 
-	ADD CONSTRAINT pk_rent PRIMARY KEY(id),
-	ADD CONSTRAINT fk_rent_bnb_house FOREIGN KEY(bnb_house) REFERENCES bnb_houses(id)
-		ON DELETE CASCADE ON UPDATE CASCADE;
+-- Constraints for "room_configurations" table
+ALTER TABLE room_configurations
+	ADD CONSTRAINT pk_room_configurations PRIMARY KEY(id);
 
--- Constraints for "rent_fare" table
-ALTER TABLE rent_fares
-	ADD CONSTRAINT pk_rent_fare PRIMARY KEY(id),
-	ADD CONSTRAINT fk_rent_fare_rent FOREIGN KEY(rent) REFERENCES rents(id)
+-- Constraints for "rental_fare" table
+ALTER TABLE rental_fares
+	ADD CONSTRAINT pk_rent_fares PRIMARY KEY(id);
+	
+-- Constraints for "rental_resume" table
+ALTER TABLE rental_resume
+	ADD CONSTRAINT pk_rental_resume PRIMARY KEY(rental_unit, room_configuration, rental_fare),
+	ADD CONSTRAINT fk_rental_resume_rental_units FOREIGN KEY(rental_unit) REFERENCES rental_units(id)
+		ON DELETE CASCADE ON UPDATE CASCADE,
+	ADD CONSTRAINT fk_rental_resume_room_configuration FOREIGN KEY(room_configuration) REFERENCES room_configurations(id)
+		ON DELETE CASCADE ON UPDATE CASCADE, 
+	ADD CONSTRAINT fk_rental_resume_rental_fare FOREIGN KEY(rental_fare) REFERENCES rental_fares(id)
 		ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Constraints for "house_sales" table
