@@ -64,6 +64,12 @@ ALTER TABLE bus_stops RENAME COLUMN gid TO id;
 ALTER TABLE bus_stops RENAME COLUMN shelter_id TO name;
 ALTER TABLE bus_stops RENAME COLUMN geom TO coordinates;
 
+CREATE TABLE positionings AS (
+	SELECT b.id AS borough, p.id AS park
+	FROM parks p, boroughs b
+	WHERE ST_Intersects(b.perimeter, p.perimeter)
+);
+
 ALTER TABLE bus_stops ADD COLUMN neighborhood INTEGER;
 
 CREATE TABLE bus_stops_new AS 

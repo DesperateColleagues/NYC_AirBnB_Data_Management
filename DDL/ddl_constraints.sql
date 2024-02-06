@@ -72,6 +72,14 @@ ALTER TABLE poi
 -- Constraints for "parks" table
 ALTER TABLE parks
 	ADD CONSTRAINT pk_parks PRIMARY KEY(id);
+	
+-- Constraints for "positionings" table
+ALTER TABLE positionings
+	ADD CONSTRAINT pk_positionings PRIMARY KEY(borough, park),
+	ADD CONSTRAINT fk_positionings_borough FOREIGN KEY(borough) REFERENCES boroughs(id)
+		ON DELETE CASCADE ON UPDATE CASCADE,
+	ADD CONSTRAINT fk_positionings_park FOREIGN KEY(park) REFERENCES parks(id)
+		ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Constraints for "bus_stops" table
 ALTER TABLE bus_stops

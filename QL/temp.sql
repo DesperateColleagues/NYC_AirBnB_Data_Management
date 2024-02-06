@@ -1,7 +1,7 @@
--- bnb_house with a number of reviews higher then 50
-CREATE VIEW significant_bnb_houses AS (
+-- Q1: rental_units with a number of reviews higher then 50
+CREATE VIEW significant_rental_units AS (
 	SELECT id, name, rate, number_of_reviews
-	FROM bnb_houses
+	FROM rental_units
 	WHERE number_of_reviews > 50 AND rate BETWEEN 3.8 and 5
 	ORDER BY rate DESC, number_of_reviews DESC
 );
@@ -12,8 +12,8 @@ SELECT * FROM significant_bnb_houses;
 -- bnb_house can have different fares for its rooms.
 CREATE VIEW actual_room_fares AS (
 	SELECT * 
-	FROM room_fares rf1
-	WHERE rf1.id IN(SELECT rf2.id
+	FROM rental_resumes rr1
+	WHERE rr1.id IN(SELECT rf2.id
 					FROM room_fares rf2 
 				    GROUP BY rf2.room_unit, rf2.id
 				    HAVING rf2.fare_date = MAX(rf2.fare_date))
