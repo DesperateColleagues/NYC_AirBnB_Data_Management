@@ -18,8 +18,8 @@ SELECT * FROM actual_resumes;
 	Find significant rental units, the ones with a number of review 
 	above 50 and a rate between 3.5 and 5
 */
-CREATE VIEW significant_rental_units AS (
-	SELECT id, name, rate, number_of_reviews
+CREATE OR REPLACE VIEW significant_rental_units AS (
+	SELECT id, name, rate, number_of_reviews, availability_rate_365
 	FROM rental_units
 	WHERE number_of_reviews > 50 AND rate BETWEEN 3.5 and 5
 	ORDER BY rate DESC, number_of_reviews DESC
@@ -89,10 +89,13 @@ $$
 $$ 
 LANGUAGE SQL;
 
-SELECT rate, AVG(rf.price) AS avg_price, 
+SELECT rate, ROUND( AVG(rf.price), 2) AS avg_price, 
        CAST(AVG(n_beds) AS INTEGER) AS n_beds, CAST(AVG(n_baths) AS INTEGER) AS n_baths, 
-	   count_bath_shared(TRUE, rate) >= count_bath_shared(FALSE, rate) AS is_bath_shared                                      
+	   count_bath_shared(TRUE, rate) >= count_bath_shared(FALSE, rate) AS is_bath_shared,
+	   ROUND( AVG(sru.availability_rate_365), 2 ) AS avg_availability_rate_365
 FROM significant_rental_units sru, rental_fares rf, room_configurations rc, rental_resumes rr
 WHERE sru.id = rr.rental_unit AND rf.id = rr.rental_fare AND rc.id = rr.room_configuration
 GROUP BY rate
 ORDER BY rate DESC;
+
+-- TODO: Update all the tuples where availability_rate_365 is 0.

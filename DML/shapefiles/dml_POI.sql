@@ -73,19 +73,20 @@ SELECT Update_domain_column(ARRAY [ARRAY ['Gated Development', 'Private Developm
 								  ]);
 			
 -- 5) Delete rows where 'domain' colomn value is empty string
-DELETE 
-FROM poi 
+DELETE FROM poi 
 WHERE domain LIKE '';
 
--- THIS FUNCTION IS A GENERALIZATION OF ALL THE FUNCTION ABOVE
--- CREATE FUNCTION Fill_column_table(data_ varchar[], table_name_ varchar, column_name_ varchar, column_index_ varchar)
--- RETURNS VOID
--- AS $$
--- BEGIN
---    for i in 1..array_length(data_, 1) loop
---     UPDATE table_name_
--- 	SET column_name_ = data_[i]
--- 	WHERE column_index_ = i;
---    end loop;
--- END $$
--- LANGUAGE plpgsql;
+-- 6) Delete rows where neighborhood is NULL
+DELETE FROM poi
+WHERE neighborhood ISNULL;
+
+select * from poi_types;
+
+-- 7) Delete rows where type_desc is 'Residential', 'Water' or 'Miscellaneous'
+DELETE FROM poi 
+WHERE poi_type IN (1, 12, 13);
+
+-- 8) Delete rows where domain is 'Bus Terminal'
+DELETE FROM poi
+WHERE domain = 'Bus Terminal';
+
