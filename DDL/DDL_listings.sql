@@ -2,7 +2,7 @@ ALTER TABLE listings RENAME COLUMN availability_365 TO availability_rate_365;
 
 -- Table rental_units
 CREATE TABLE rental_units AS (
-	SELECT id, name, availability_rate_365, CAST(rate AS DECIMAL), 
+	SELECT id, name, availability_rate_365, rate, 
 	       number_of_reviews, latitude, longitude, host_id as host, license AS old_license
 	FROM listings
 );
@@ -26,11 +26,11 @@ CREATE TABLE hosts AS (
 
 -- TABLE room_configurations
 CREATE TABLE room_configurations AS (
-	SELECT room_type, CAST(n_beds AS DECIMAL), CAST(n_baths AS DECIMAL), is_bath_shared
+	SELECT room_type, n_beds, n_baths, is_bath_shared
 	FROM listings
 	GROUP BY room_type, n_beds, n_baths, is_bath_shared
 );
-	
+
 ALTER TABLE room_configurations ADD COLUMN id SERIAL;
 ALTER TABLE room_configurations ADD COLUMN n_rooms INTEGER DEFAULT NULL;
 
@@ -43,13 +43,13 @@ CREATE TABLE rental_fares AS (
 	
 ALTER TABLE rental_fares ADD COLUMN id SERIAL;
 
--- TABLE rental_resume
-CREATE TABLE rental_resume AS (
+-- TABLE rental_resumes
+CREATE TABLE rental_resumes AS (
 	SELECT l.id AS rental_unit, rg.id AS room_configuration, 
 	       rf.id AS rental_fare, CURRENT_DATE AS fare_import_date
 	FROM listings l, room_configurations rg, rental_fares rf
-	WHERE l.room_type = rg.room_type AND CAST(l.n_beds AS DECIMAL) = rg.n_beds AND 
-	      CAST(l.n_baths AS DECIMAL) = rg.n_beds AND l.is_bath_shared = rg.is_bath_shared AND 
+	WHERE l.room_type = rg.room_type AND l.n_beds = rg.n_beds AND 
+	      l.n_baths = rg.n_baths AND l.is_bath_shared = rg.is_bath_shared AND 
 	      l.price = rf.price AND l.minimum_nights = rf.minimum_nights
 );
 

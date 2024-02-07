@@ -8,16 +8,23 @@ CREATE VIEW significant_rental_units AS (
 
 SELECT * FROM significant_bnb_houses;
 
--- This view holds all the actual fares, since during time a single 
--- bnb_house can have different fares for its rooms.
+-- This view holds all the actual resumes, since during the time a single 
+-- bnb_house can have different fares for its rooms, and the rooms in 
+-- this period of time can change too.
 CREATE VIEW actual_room_fares AS (
 	SELECT * 
 	FROM rental_resumes rr1
-	WHERE rr1.id IN(SELECT rf2.id
-					FROM room_fares rf2 
-				    GROUP BY rf2.room_unit, rf2.id
-				    HAVING rf2.fare_date = MAX(rf2.fare_date))
+	WHERE rr1.rental_unit IN (SELECT rr2.rental_unit
+							  FROM rental_resumes rr2 
+				    		  GROUP BY rr2.rental_unit
+				    		  HAVING rr2.fare_date = MAX(rr2.fare_date))
 );
+
+
+SELECT rr2.rental_unit
+FROM rental_resumes rr2 
+GROUP BY rr2.rental_unit
+HAVING rr2.fare_import_date = MAX(rr2.fare_import_date)
 
 SELECT * FROM actual_room_fares;
 

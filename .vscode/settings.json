@@ -9,5 +9,7 @@
             "database": "airbnb",
             "username": "postgres"
         }
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true
 }

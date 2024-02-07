@@ -32,7 +32,6 @@ $$ LANGUAGE plpgsql;
 
 SELECT update_room_type();
 
-
 UPDATE room_configurations
 SET n_baths = 1
 WHERE n_baths ISNULL AND is_bath_shared = true;

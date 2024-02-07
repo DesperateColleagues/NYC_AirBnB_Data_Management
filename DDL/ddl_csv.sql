@@ -24,10 +24,10 @@ CREATE TABLE listings (
     availability_365 DECIMAL,
     number_of_reviews_ltm INT,
     license VARCHAR(255),
-	rate VARCHAR(10),
+	rate DECIMAL,
 	room_type VARCHAR(255),
-	n_beds VARCHAR(10),
-	n_baths VARCHAR(10),
+	n_beds INTEGER,
+	n_baths INTEGER,
 	is_bath_shared BOOLEAN
 );
 
