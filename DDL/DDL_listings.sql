@@ -46,11 +46,13 @@ ALTER TABLE rental_fares ADD COLUMN id SERIAL;
 -- TABLE rental_resumes
 CREATE TABLE rental_resumes AS (
 	SELECT l.id AS rental_unit, rg.id AS room_configuration, 
-	       rf.id AS rental_fare, CURRENT_DATE AS fare_import_date
+	       rf.id AS rental_fare, CURRENT_DATE AS resume_date
 	FROM listings l, room_configurations rg, rental_fares rf
 	WHERE l.room_type = rg.room_type AND l.n_beds = rg.n_beds AND 
 	      l.n_baths = rg.n_baths AND l.is_bath_shared = rg.is_bath_shared AND 
 	      l.price = rf.price AND l.minimum_nights = rf.minimum_nights
 );
+
+ALTER TABLE rental_resumes ADD COLUMN id SERIAL;
 
 DROP TABLE listings;

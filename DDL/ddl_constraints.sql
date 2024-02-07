@@ -37,14 +37,14 @@ ALTER TABLE rental_fares
 	
 -- Constraints for "rental_resumes" table
 ALTER TABLE rental_resumes
-	ADD CONSTRAINT pk_rental_resume PRIMARY KEY(rental_unit, room_configuration, rental_fare),
+	ADD CONSTRAINT pk_rental_resume PRIMARY KEY(id),
 	ADD CONSTRAINT fk_rental_resume_rental_units FOREIGN KEY(rental_unit) REFERENCES rental_units(id)
 		ON DELETE CASCADE ON UPDATE CASCADE,
 	ADD CONSTRAINT fk_rental_resume_room_configuration FOREIGN KEY(room_configuration) REFERENCES room_configurations(id)
 		ON DELETE CASCADE ON UPDATE CASCADE, 
 	ADD CONSTRAINT fk_rental_resume_rental_fare FOREIGN KEY(rental_fare) REFERENCES rental_fares(id)
 		ON DELETE CASCADE ON UPDATE CASCADE;
-
+		
 -- Constraints for "house_sales" table
 ALTER TABLE house_sales
 	ADD CONSTRAINT pk_house_sales PRIMARY KEY(id),
