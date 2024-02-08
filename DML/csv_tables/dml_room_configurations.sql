@@ -13,29 +13,12 @@ LANGUAGE plpgsql;
 
 SELECT find_n_room();
 
--- Replace the value without the number
-CREATE OR REPLACE FUNCTION update_room_type()
-RETURNS VOID AS
-$$
-BEGIN
-	
-	UPDATE room_configurations
-	SET room_type = 'Bedroom'
-	WHERE n_roomS = 1;
-	
-	UPDATE room_configurations
-	SET room_type = 'Bedrooms'
-	WHERE n_rooms> 1;
-	
-END
-$$ LANGUAGE plpgsql;
-
-SELECT update_room_type();
+UPDATE room_configurations
+SET room_type = 'Bedroom'
+WHERE n_rooms IS NOT NULL;
 
 UPDATE room_configurations
-SET n_baths = 1
-WHERE n_baths ISNULL AND is_bath_shared = true;
+SET n_rooms = 1
+WHERE room_type LIKE 'Studio';
 
-UPDATE room_configurations
-SET is_bath_shared = NULL
-WHERE n_baths ISNULL AND is_bath_shared = false;
+SELECT DISTINCT room_type FROM room_configurations;
