@@ -207,6 +207,8 @@ LANGUAGE plpgsql;
 CREATE OR REPLACE VIEW ideal_rental_unit_per_band_rate AS (
 	SELECT 	rental_unit_band,
 			ROUND(AVG(rf.price), 2) AS avg_price, 
+			CAST(AVG(n_beds) AS INTEGER) AS n_beds, 
+			CAST(AVG(n_baths) AS INTEGER) AS n_baths, 
 			ROUND(AVG(sru.availability_rate_365), 2) AS avg_availability_rate_365,
 			(count_licensed_ru(TRUE, rental_unit_band) >= 
 			 count_licensed_ru(FALSE, rental_unit_band)) AS mode_license,
@@ -227,6 +229,4 @@ CREATE OR REPLACE VIEW ideal_rental_unit_per_band_rate AS (
 	GROUP BY rental_unit_band
 );
 
-SELECT * 
-FROM ideal_rental_unit_per_band_rate
-ORDER BY avg_price DESC;
+SELECT * FROM ideal_rental_unit_per_band_rate;
