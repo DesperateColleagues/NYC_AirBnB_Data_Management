@@ -1,27 +1,16 @@
 /*
 	Q4
-	Select for every type of band rate, the "ideal" borough: the one
-	with the most occurrences within a band rate
-*/
-/*WITH count_borough_per_bnb_band AS (
-	SELECT  sru.rental_unit_band, b.name, COUNT(*) AS tot
-	FROM significant_rental_units sru, neighborhoods n, boroughs b
-	WHERE sru.neighborhood = n.id AND n.borough = b.id
-	GROUP BY rental_unit_band, b.name*/
-) 
-/*
-	Q4
 	List all the borough based on the crime rate from the lower to the higher.
 */
-WITH total_crimes AS (
+WITH total_arrests AS (
 	SELECT COUNT(*) AS tot
-	FROM crimes
+	FROM arrests
 )	SELECT b.name AS borough, 
-		   ROUND(CAST(COUNT(*) AS DECIMAL) / CAST((SELECT * FROM total_crimes) AS DECIMAL), 2) AS crime_rate
-	FROM neighborhoods n, crimes c, boroughs b
-	WHERE n.id = c.neighborhood AND b.id = n.borough 
+		   ROUND(CAST(COUNT(*) AS DECIMAL) / CAST((SELECT * FROM total_arrests) AS DECIMAL), 2) AS arrests_rate
+	FROM neighborhoods n, arrests a, boroughs b
+	WHERE n.id = a.neighborhood AND b.id = n.borough 
 	GROUP BY b.name
-	ORDER BY n_crime ASC;
+	ORDER BY arrests_rate ASC;
 	
 /*
 	Q5

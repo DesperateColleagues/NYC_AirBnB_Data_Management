@@ -9,8 +9,13 @@ ALTER TABLE neighborhoods
 		ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Constraints for "crimes" table
-ALTER TABLE crimes
-	ADD CONSTRAINT fk_crimes_crime_type FOREIGN KEY(crime_type) REFERENCES crime_types(id)
+ALTER TABLE crimes 
+	ADD CONSTRAINT pk_crimes PRIMARY KEY(id);
+
+-- Constraints for "arrests" table
+ALTER TABLE arrests
+	ADD CONSTRAINT pk_arrests PRIMARY KEY(id),
+	ADD CONSTRAINT fk_arrest_crime FOREIGN KEY(crime) REFERENCES crimes(id)
 		ON DELETE CASCADE ON UPDATE CASCADE,
 	ADD CONSTRAINT fk_crimes_neighborhood FOREIGN KEY(neighborhood) REFERENCES neighborhoods(id)
 		ON DELETE CASCADE ON UPDATE CASCADE;

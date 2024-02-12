@@ -1,0 +1,10 @@
+DROP TABLE boroughs_temp;
+DROP TABLE neighborhoods_temp;
+DROP TABLE parks_temp;
+DROP TABLE poi_temp;
+DROP TABLE roads_temp;
+DROP TABLE bus_stops_temp;
+DROP TABLE listings;
+DROP TABLE subway_stops_temp;
+DROP TABLE nypd_arrests;
+DROP TABLE house_sales_temp;

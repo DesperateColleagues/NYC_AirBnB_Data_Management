@@ -1,3 +1,8 @@
+-- 0) Insert data into table
+INSERT INTO bus_stops (id, name, corner, coordinates)
+	SELECT gid, shelter_id, corner, geom
+	FROM bus_stops_temp;
+	
 -- 1) Change SRID
 UPDATE bus_stops
 SET coordinates = ST_SetSRID(coordinates, 4326);

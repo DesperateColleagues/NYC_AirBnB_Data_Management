@@ -1,96 +1,88 @@
-/*
-	NOTE: attribute's name for these CSV tables are the SAME
-	of the relative CSV file, since the loading happens using 
-	the CSV header.
-*/
-
--- This table will load CSV data about bnb listings
-CREATE TABLE listings (
+-- This table will contain every Airbnb rental unit in NYC
+CREATE TABLE IF NOT EXISTS rental_units (
 	id BIGINT,
-    name VARCHAR(255),
-    host_id INT,
-    host_name VARCHAR(255),
-    neighbourhood_group VARCHAR(255),
-    neighbourhood VARCHAR(255),
-    latitude FLOAT,
-    longitude FLOAT,
-    bnb_type VARCHAR(255),
-    price INT,
-    minimum_nights INT,
-    number_of_reviews INT,
-    last_review DATE,
-    reviews_per_month FLOAT,
-    calculated_host_listings_count INT,
-    availability_365 DECIMAL,
-    number_of_reviews_ltm INT,
-    license VARCHAR(255),
-	rate DECIMAL,
-	room_type VARCHAR(255),
+	name VARCHAR(50) NOT NULL,
+	availability_rate_365 DECIMAL, 
+	rate DECIMAL, 
+	number_of_reviews INTEGER,
+	latitude DECIMAL,
+	longitude DECIMAL,
+	host INTEGER NOT NULL,
+	license BOOLEAN DEFAULT FALSE,
+	neighborhood INTEGER,
+	coordinates geometry(Point)
+);
+
+-- This table will contain every host for the renal units
+CREATE TABLE IF NOT EXISTS hosts (
+	id INTEGER,
+	name VARCHAR(50)
+);
+
+-- This table will contain every possible room configuration for the rental units
+CREATE TABLE IF NOT EXISTS room_configurations (
+	id SERIAL,
+	room_type VARCHAR(20),
 	n_beds INTEGER,
 	n_baths INTEGER,
+	n_rooms INTEGER,
 	is_bath_shared BOOLEAN
 );
 
--- This table will load csv data about arrests in nyc
-CREATE TABLE IF NOT EXISTS nypd_Arrests (
-    ARREST_KEY INT,
-    ARREST_DATE DATE,
-    PD_CD INT,
-    PD_DESC VARCHAR(255),
-    KY_CD FLOAT,
-    OFNS_DESC VARCHAR(255),
-    LAW_CODE VARCHAR(50),
-    LAW_CAT_CD VARCHAR(50),
-    ARREST_BORO VARCHAR(50),
-    ARREST_PRECINCT INT,
-    JURISDICTION_CODE INT,
-    AGE_GROUP VARCHAR(50),
-    PERP_SEX VARCHAR(50),
-    PERP_RACE VARCHAR(50),
-    X_COORD_CD INT,
-    Y_COORD_CD INT,
-    Latitude FLOAT,
-    Longitude FLOAT
+-- This table will contain every possible rental fare for the rental units
+CREATE TABLE IF NOT EXISTS rental_fares (
+	id SERIAL,
+	minimum_nights INTEGER NOT NULL,
+	price DECIMAL NOT NULL
 );
 
--- This table will load csv data of subways stops in nyc
-CREATE TABLE subway_stops (
-    stop_id VARCHAR(50),
-    stop_code FLOAT,
-    stop_name VARCHAR(255),
-    stop_desc FLOAT,
-    stop_lat FLOAT,
-    stop_lon FLOAT,
-    zone_id FLOAT,
-    stop_url FLOAT,
-    location_type INT,
-    parent_station VARCHAR(50)
+-- This table resume the listing of a rental unit
+CREATE TABLE IF NOT EXISTS rental_resumes (
+	id SERIAL,
+	rental_unit BIGINT NOT NULL,
+	room_configuration INTEGER NOT NULL,
+	rental_fare INTEGER NOT NULL,
+	resume_date DATE
 );
 
-CREATE TABLE IF NOT EXISTS house_sales (
-    id INT,
-    BOROUGH VARCHAR(50),
-    NEIGHBORHOOD VARCHAR(255),
-    BUILDING_CLASS_CATEGORY VARCHAR(255),
-    TAX_CLASS_AT_PRESENT CHAR(2),
-    BLOCK INT,
-    LOT INT,
-    EASEMENT FLOAT,
-    BUILDING_CLASS_AT_PRESENT VARCHAR(50),
-    ADDRESS VARCHAR(255),
-    APARTMENT_NUMBER VARCHAR(50),
-    ZIP_CODE FLOAT,
-    RESIDENTIAL_UNITS FLOAT,
-    COMMERCIAL_UNITS FLOAT,
-    TOTAL_UNITS FLOAT,
-    LAND_SQUARE_FEET FLOAT,
-    GROSS_SQUARE_FEET FLOAT,
-    YEAR_BUILT INTEGER,
-    TAX_CLASS_AT_TIME_OF_SALE INT,
-    BUILDING_CLASS_AT_TIME_OF_SALE VARCHAR(50),
-    SALE_PRICE INT,
-    SALE_DATE VARCHAR(50),
-    TEMP_CORD VARCHAR(50),
-    LATITUDE FLOAT,
-    LONGITUDE FLOAT
+-- This table contains every type of crime
+CREATE TABLE IF NOT EXISTS crimes (
+	id SERIAL,
+	description VARCHAR(100) NOT NULL
 );
+
+-- This table will contain the arrests made in NYC
+CREATE TABLE IF NOT EXISTS arrests (
+	id INTEGER,
+	arrest_date DATE NOT NULL,
+	latitude DECIMAL,
+	longitude DECIMAL,
+	neighborhood INTEGER,
+	coordinates geometry(Point),
+	crime INTEGER NOT NULL
+);
+
+-- This table will contain NYC subway stops
+CREATE TABLE IF NOT EXISTS subway_stops (
+	id VARCHAR(4),
+	name VARCHAR(50) NOT NULL,
+	latitude DECIMAL,
+	longitude DECIMAL,
+	neighborhood INTEGER, 
+	coordinates geometry(Point)
+ );
+  
+ -- This table will contain the house sales in NYC during 2023
+ CREATE TABLE IF NOT EXISTS house_sales (
+	 id SERIAL,
+	 tax_class CHAR(2),
+	 sqft DECIMAL NOT NULL,
+	 price DECIMAL,
+	 construction_year INTEGER,
+	 address VARCHAR(100),
+	 latitude DECIMAL,
+	 longitude DECIMAL,
+	 neighborhood INTEGER, 
+	 coordinates geometry(Point)
+ );
+ 

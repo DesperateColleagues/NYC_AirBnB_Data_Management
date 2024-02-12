@@ -1,3 +1,8 @@
+-- 0) Insert data into table
+INSERT INTO parks(name, category, perimeter)
+	SELECT signname, typecatego, geom
+	FROM parks_temp;
+
 -- 1) Change SRID
 UPDATE parks
 SET perimeter = ST_SetSRID(perimeter, 4326);
@@ -24,3 +29,9 @@ SET boroughs = (
 			  p2.id = P1.id
 		GROUP BY p2.id, n.borough
 ));
+
+-- 5) Insert value into positionings (n n table)
+INSERT INTO positionings 
+	SELECT b.id AS borough, p.id AS park
+	FROM parks p, boroughs b
+	WHERE ST_Intersects(b.perimeter, p.perimeter);

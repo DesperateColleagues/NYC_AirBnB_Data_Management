@@ -15,7 +15,7 @@ $$
 LANGUAGE plpgsql;
 
 SELECT find_neighborhood('rental_units');
-SELECT find_neighborhood('crimes');
+SELECT find_neighborhood('arrests');
 SELECT find_neighborhood('house_sales');
 SELECT find_neighborhood('poi');
 SELECT find_neighborhood('subway_stops');

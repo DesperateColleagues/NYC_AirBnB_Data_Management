@@ -1,3 +1,8 @@
+-- 0) Insert data into table
+INSERT INTO boroughs (id, name, perimeter) 
+	SELECT boro_code, boro_name, geom 
+	FROM boroughs_temp; 
+
 -- 1) Change SRID
 UPDATE boroughs
 SET perimeter = ST_SetSRID(perimeter, 4326);

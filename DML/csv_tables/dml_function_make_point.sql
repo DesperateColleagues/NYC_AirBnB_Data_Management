@@ -8,7 +8,7 @@ $$
 LANGUAGE plpgsql;
 
 -- 1) convert coordinates into POINT geometry
-SELECT make_point('crimes');
+SELECT make_point('arrests');
 SELECT make_point('subway_stops');
 SELECT make_point('rental_units');
 SELECT make_point('house_sales');

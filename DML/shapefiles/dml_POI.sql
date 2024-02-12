@@ -1,8 +1,13 @@
--- 1) Change SRID
-UPDATE poi
-SET coordinates = ST_SetSRID(coordinates, 4326);
+-- 0) Insert data into table
+INSERT INTO poi_types (id)
+	SELECT DISTINCT CAST(facility_t AS INTEGER) 
+	FROM poi_temp;
+	
+INSERT INTO poi (name, domain, poi_type, coordinates)
+	SELECT name, faci_dom, CAST(facility_t AS INTEGER), geom
+	FROM poi_temp;
 
--- 2) Turn the invalid geometries to valid ones
+-- 1) Turn the invalid geometries to valid ones
 UPDATE poi 
 SET coordinates = ST_MakeValid(coordinates)
 WHERE St_IsValid(coordinates) = 'False';
@@ -76,17 +81,11 @@ SELECT Update_domain_column(ARRAY [ARRAY ['Gated Development', 'Private Developm
 DELETE FROM poi 
 WHERE domain LIKE '';
 
--- 6) Delete rows where neighborhood is NULL
-DELETE FROM poi
-WHERE neighborhood ISNULL;
-
-select * from poi_types;
-
--- 7) Delete rows where type_desc is 'Residential', 'Water' or 'Miscellaneous'
+-- 6) Delete rows where type_desc is 'Residential', 'Water' or 'Miscellaneous'
 DELETE FROM poi 
 WHERE poi_type IN (1, 12, 13);
 
--- 8) Delete rows where domain is 'Bus Terminal'
+-- 7) Delete rows where domain is 'Bus Terminal'
 DELETE FROM poi
 WHERE domain = 'Bus Terminal';
 

@@ -1,3 +1,8 @@
+-- 0) Insert data into table
+INSERT INTO roads (borough, traffic_direction, name, status, path)
+	SELECT borocode, trafdir, st_label, status, geom
+	FROM roads_temp;
+
 -- 1) Change SRID
 UPDATE roads
 SET path = ST_SetSRID(path, 4326);
