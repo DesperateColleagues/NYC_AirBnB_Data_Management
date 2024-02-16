@@ -48,6 +48,11 @@ CREATE TABLE IF NOT EXISTS roads (
 	path geometry(LineString, 4326)
 );
 
+CREATE INDEX roads_idx
+	ON roads
+	USING GIST(path);
+	
+
 -- This table will contain every NYC park
 CREATE TABLE IF NOT EXISTS parks (
 	id SERIAL,
@@ -56,6 +61,10 @@ CREATE TABLE IF NOT EXISTS parks (
 	boroughs CHAR(2)[],
 	perimeter geometry(MultiPolygon, 4326)
 );
+
+CREATE INDEX parks_idx
+	ON parks
+	USING GIST(perimeter);
 
 -- This table will contain the boroughs where each park belongs
 CREATE TABLE IF NOT EXISTS positionings (

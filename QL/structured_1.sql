@@ -41,7 +41,7 @@ $$
 LANGUAGE plpgsql;
 
 CREATE OR REPLACE VIEW significant_rental_units AS (
-	SELECT 	id, name, rate, number_of_reviews, availability_rate_365, license, neighborhood, 
+	SELECT 	id, name, rate, number_of_reviews, availability_rate_365, license, neighborhood, coordinates,
 			add_band_to_rental_unit_rate(rate) AS rental_unit_band
 	FROM 	rental_units
 	WHERE 	number_of_reviews > 50 AND rate BETWEEN 3.5 AND 5
@@ -222,7 +222,7 @@ CREATE OR REPLACE VIEW ideal_rental_unit_per_band_rate AS (
 			WHEN (count_room_type('Bedroom', rental_unit_band) >= 
 				  count_room_type('Studio', rental_unit_band)) IS FALSE THEN 'Studio'
 			END AS mode_room_type
-	FROM 	significant_rental_units sru, rental_fares rf, room_configurations rc, rental_resumes rr
+	FROM 	significant_rental_units sru, rental_fares rf, room_configurations rc, actual_resumes rr
 	WHERE 	sru.id = rr.rental_unit AND rf.id = rr.rental_fare AND rc.id = rr.room_configuration
 	GROUP BY rental_unit_band
 );
