@@ -1,0 +1,5 @@
+"rental_unit_band","avg_price","avg_availability_rate_365","mode_license","avg_number_of_beds","avg_number_of_baths","mode_bath_shared","mode_room_type"
+"average","202.29","0.77",True,1,1,False,"Bedroom"
+"execellent","199.14","0.60",False,1,1,False,"Bedroom"
+"good","196.17","0.66",False,1,1,False,"Bedroom"
+"very good","165.91","0.64",False,1,1,False,"Bedroom"
