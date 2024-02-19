@@ -115,11 +115,11 @@ FROM sub_perimeters_with_lower_avg_price_per_houses;
 /*
 	Q8
 									*******TRANSPORT STOPS OF A SUB AREA*******
+									
 	This query shows how many bus and subway stops there are in a specific sub area selected from the stakeholder.
 */
-
 -- This query shows the square meters of a specific neighborhood's sub areas.
-SELECT CEIL(ST_Area(sub_perimeter::geography) AS chosen_zone_area
+SELECT ROUND(SQRT(ST_Area(sub_perimeter::geography)/(3140))::DECIMAL, 2) AS chosen_zone_radius_km
 FROM sub_perimeters_with_lower_avg_price_per_houses
 WHERE sd_id = 103;
 
