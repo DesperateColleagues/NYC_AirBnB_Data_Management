@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS parks (
 	id SERIAL,
 	name VARCHAR(100),
 	category VARCHAR(50),
-	boroughs CHAR(2)[],
 	perimeter geometry(MultiPolygon, 4326)
 );
 

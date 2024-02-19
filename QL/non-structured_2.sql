@@ -29,7 +29,7 @@ END $$;
 	the results suggests that there are some poi domain in NYC that are considered useful for the BnB business.
 */
 
-CREATE TEMPORARY TABLE IF NOT EXISTS poi_circle_500_meter AS (
+CREATE MATERIALIZED VIEW poi_circle_500_meter AS (
 	SELECT 	id, name, domain, poi_type, neighborhood,
 		ST_Buffer(coordinates::geography, 500, 'quad_segs=16')::geometry AS circle
 	FROM 	poi
@@ -65,7 +65,7 @@ WHERE rud_for_domain >= (SELECT SUM(poi_rud2.rental_units_density) * 0.5
 	(the bnb is considered the center point of this area)
 */
 										
-CREATE TEMPORARY TABLE sru_circle_100_meter AS (
+CREATE MATERIALIZED VIEW sru_circle_100_meter AS (
 	SELECT * FROM create_sru_circle_x_meters(100)
 );
 
@@ -73,7 +73,7 @@ CREATE INDEX sru_circle_100_meter_idx
 	ON sru_circle_100_meter
 	USING GIST(circle);
 	
-CREATE OR REPLACE VIEW sru_with_at_least_one_arrests_in_range_100_meters AS (
+CREATE MATERIALIZED VIEW sru_with_at_least_one_arrests_in_range_100_meters AS (
 	SELECT 	sru100.id, sru100.name, COUNT(*) AS number_arrests, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
 	FROM 	sru_circle_100_meter sru100, arrests a, neighborhoods n
 	WHERE 	ST_Intersects(a.coordinates, sru100.circle) AND ST_Contains(n.perimeter, ST_Centroid(sru100.circle))
@@ -82,7 +82,7 @@ CREATE OR REPLACE VIEW sru_with_at_least_one_arrests_in_range_100_meters AS (
 
 -- This view is necessary to count neighborhoods whose BNB does not have any arrests 
 -- in the chosen area
-CREATE OR REPLACE VIEW sru_without_arrests_in_range_100_meters AS (
+CREATE MATERIALIZED VIEW sru_without_arrests_in_range_100_meters AS (
 	SELECT 	sru100.id, sru100.name, 0 AS number_arrests, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
 	FROM 	sru_circle_100_meter sru100, neighborhoods n
 	WHERE 	sru100.id NOT IN (SELECT id FROM sru_with_at_least_one_arrests_in_range_100_meters) AND
@@ -95,14 +95,15 @@ CREATE OR REPLACE VIEW arrests_within_100_meters_from_sru AS (
 	  	SELECT * FROM sru_without_arrests_in_range_100_meters
 );
 
+SELECT * FROM arrests_within_100_meters_from_sru;
+
 /* Select for each neighborhood the rate of safe bnbs: the ones with the smaller amount
    of arrests in an area of 100 meters
-   Extimated execution time -> 3 min
 */
-CREATE TEMPORARY TABLE safe_ru_per_neighborhood AS (
+CREATE OR REPLACE VIEW safe_ru_per_neighborhood AS (
 	SELECT neighborhood, ROUND((COUNT(*)::DECIMAL / (SELECT COUNT(*)
-									  FROM arrests_within_100_meters_from_sru 
-									  WHERE asru.neighborhood = neighborhood)), 2) AS safe_rental_units_rate
+													 FROM arrests_within_100_meters_from_sru 
+													 WHERE asru.neighborhood = neighborhood)), 2) AS safe_rental_units_rate
 	FROM arrests_within_100_meters_from_sru asru
 	WHERE asru.number_arrests = (SELECT MIN(number_arrests) FROM arrests_within_100_meters_from_sru)
 	GROUP BY neighborhood
@@ -122,24 +123,23 @@ SELECT * FROM safe_ru_per_neighborhood;
 	(the bnb is considered the center point of this area).
 */
 
-CREATE TEMPORARY TABLE sru_circle_700_meter AS (
+CREATE MATERIALIZED VIEW sru_circle_700_meter AS (
 	SELECT * FROM create_sru_circle_x_meters(700)
 );
-
-drop table sru_circle_700_meter;
 
 CREATE INDEX sru_circle_700_meter_idx
 	ON sru_circle_700_meter
 	USING GIST(circle);
 
-CREATE OR REPLACE VIEW parks_within_700_meters_from_sru  AS (
+CREATE MATERIALIZED VIEW parks_within_700_meters_from_sru  AS (
 	SELECT sru700.id, sru700.name, COUNT(*) AS number_parks, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
 	FROM sru_circle_700_meter sru700, parks p, neighborhoods n
 	WHERE ST_Overlaps(p.perimeter, sru700.circle) AND ST_Contains(n.perimeter, ST_Centroid(sru700.circle))
 	GROUP BY sru700.id, sru700.name, n.name, n.borough
 );
 
-/*CREATE OR REPLACE VIEW parks_within_700_meters_from_sru  AS (
+/*
+	CREATE OR REPLACE VIEW parks_within_700_meters_from_sru  AS (
 	SELECT 	sru.id, sru.name, COUNT(*) AS number_parks, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
 	FROM 	significant_rental_units sru, parks p, neighborhoods n
 	WHERE 	ST_DWithin(sru.coordinates::geography, p.perimeter::geography, 700) AND 
@@ -152,14 +152,13 @@ SELECT MAX(number_parks) FROM parks_within_700_meters_from_sru;  --show the max 
 /* Count for each neighborhood the number of BnB that are closer to more parks in an area of 1km
    Extimated execution time -> 10 sec
 */
-CREATE TEMPORARY TABLE ruParks_per_neighborhood AS (
+CREATE OR REPLACE VIEW ruParks_per_neighborhood AS (
 	SELECT neighborhood, COUNT(*) AS BnB_with_more_park
 	FROM parks_within_700_meters_from_sru psru
 	WHERE number_parks >= 2
 	GROUP BY neighborhood
 	ORDER BY BnB_with_more_park DESC
 );
-
 
 SELECT * FROM ruParks_per_neighborhood;
 
@@ -174,7 +173,7 @@ SELECT * FROM ruParks_per_neighborhood;
 	(the bnb is considered the center point of this area).
 */
 
-CREATE TEMPORARY TABLE sru_circle_1km AS (
+CREATE MATERIALIZED VIEW sru_circle_1km AS (
 	SELECT * FROM create_sru_circle_x_meters(1000)
 );
 
@@ -182,19 +181,19 @@ CREATE INDEX sru_circle_1km_idx
 	ON sru_circle_1km
 	USING GIST(circle);
 	
-CREATE OR REPLACE VIEW transport_stops_within_1km_from_sru  AS (
+CREATE MATERIALIZED VIEW transport_stops_within_1km_from_sru  AS (
 	WITH t AS (
-	SELECT sru1km.id, sru1km.name, COUNT(*) AS number_transport_stop, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
-	FROM sru_circle_1km sru1km, subway_stops ss, neighborhoods n
-	WHERE ST_Intersects( ss.coordinates, sru1km.circle) AND ST_Contains(n.perimeter, ST_Centroid(sru1km.circle))
-	GROUP BY sru1km.id, sru1km.name, n.name, n.borough
+		SELECT sru1km.id, sru1km.name, COUNT(*) AS number_transport_stop, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
+		FROM sru_circle_1km sru1km, subway_stops ss, neighborhoods n
+		WHERE ST_Intersects(ss.coordinates, sru1km.circle) AND ST_Contains(n.perimeter, ST_Centroid(sru1km.circle))
+		GROUP BY sru1km.id, sru1km.name, n.name, n.borough
 	
-	UNION
+		UNION
 	
-	SELECT sru1km.id, sru1km.name, COUNT(*) AS number_transport_stop, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
-	FROM sru_circle_1km sru1km, bus_stops bs, neighborhoods n
-	WHERE ST_Intersects(bs.coordinates, sru1km.circle ) AND ST_Contains(n.perimeter, ST_Centroid(sru1km.circle))
-	GROUP BY sru1km.id, sru1km.name, n.name, n.borough
+		SELECT sru1km.id, sru1km.name, COUNT(*) AS number_transport_stop, CONCAT(n.name, ' (', n.borough, ')') AS neighborhood
+		FROM sru_circle_1km sru1km, bus_stops bs, neighborhoods n
+		WHERE ST_Intersects(bs.coordinates, sru1km.circle) AND ST_Contains(n.perimeter, ST_Centroid(sru1km.circle))
+		GROUP BY sru1km.id, sru1km.name, n.name, n.borough
 	) 
 	SELECT id, name, SUM(number_transport_stop) AS number_transport_stop, neighborhood
 	FROM t
@@ -204,8 +203,7 @@ CREATE OR REPLACE VIEW transport_stops_within_1km_from_sru  AS (
 SELECT MAX(bnb_with_more_transport) FROM transport_stops_within_1km_from_sru;  --show the max number of transport stops for the BnBs = 83
 
 -- Count for each neighborhood the number of BnB that are closer to more transport stops in an area of 1km
--- Extimated execution time -> 11 sec
-CREATE TEMPORARY TABLE ruTransports_per_neighborhood AS (
+CREATE OR REPLACE VIEW ruTransports_per_neighborhood AS (
 	SELECT neighborhood, COUNT(*) AS bnb_with_more_transport
 	FROM transport_stops_within_1km_from_sru tsru
 	WHERE number_transport_stop >= 15
@@ -231,7 +229,7 @@ SELECT * FROM ruTransports_per_neighborhood;
 	- emergency: 'Hospital', 'Day Care Center'
 	
 */
-CREATE TEMPORARY TABLE sru_circle_500_meter AS (
+CREATE MATERIALIZED VIEW sru_circle_500_meter AS (
 	SELECT * FROM create_sru_circle_x_meters(500)
 );
 
@@ -311,28 +309,6 @@ SELECT * FROM ruEmergency_per_neighborhood;
 	
 */
 
-CREATE INDEX safe_ru_per_neighborhood_idx 
-	ON safe_ru_per_neighborhood(neighborhood);
-	
-CREATE INDEX ruParks_per_neighborhood_idx 
-	ON ruParks_per_neighborhood(neighborhood);
-	
-CREATE INDEX ruTransports_per_neighborhood_idx 
-	ON ruTransports_per_neighborhood(neighborhood);
-	
-CREATE INDEX ruRoutine_per_neighborhood_idx 
-	ON ruRoutine_per_neighborhood(neighborhood);
-	
-CREATE INDEX ruFreeTime_per_neighborhood_idx 
-	ON ruFreeTime_per_neighborhood(neighborhood);
-	
-CREATE INDEX ruEmergency_per_neighborhood_idx 
-	ON ruEmergency_per_neighborhood(neighborhood);
-
-/*
-   
-   This query allow to find the best neighborhhod that is more suitable accordingly to stakeholder's criteria.
-*/
 SELECT 	safe_ru.neighborhood, safe_ru.safe_rental_units_rate, ru_parks.BnB_with_more_park, rut.bnb_with_more_transport,
 			ruPOI_r.bnb_with_more_daily_routine_poi, ruPoi_ft.bnb_with_more_free_time_poi, ruPOI_e.bnb_with_more_emergency_poi
 FROM 	safe_ru_per_neighborhood safe_ru, ruParks_per_neighborhood ru_parks, ruTransports_per_neighborhood rut,
@@ -347,4 +323,3 @@ WHERE	safe_ru.neighborhood = ru_parks.neighborhood AND ru_parks.neighborhood = r
 		ruPoi_ft.bnb_with_more_free_time_poi <= 100 AND
 		ruPOI_e.bnb_with_more_emergency_poi <= 150
 ORDER BY safe_ru.safe_rental_units_rate DESC;
-

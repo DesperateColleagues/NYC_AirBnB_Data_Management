@@ -1,7 +1,9 @@
 /*
 	Q7
-									*******CHEAPER SUB AREAS OF THE NEIGHBORHOODS*******
-	This query, thanks to the fourth neighborhoods obteined by Q6,  shows for each neighborhood the n sub areas 
+									
+									********CHEAPER SUB AREAS OF THE NEIGHBORHOODS*******
+									*
+	This query, thanks to the fourth neighborhoods obtained by Q6,  shows for each neighborhood the n sub areas 
 	with:
 	- significant id
 	- geometry
@@ -22,6 +24,7 @@ BEGIN
 				FROM neighborhoods
 				WHERE name LIKE n_name
 			),
+			-- GeneratePoints takes 24 as seed to make the process repeatable
 			n_pts AS (
 				SELECT (ST_Dump(ST_GeneratePoints(perimeter, n_sub_perimeters * 100, 24))).geom AS geom
 				FROM neighborhood
@@ -73,6 +76,7 @@ CREATE INDEX selected_neighborhoods_sub_division_idx
 	
 CREATE VIEW sub_perimeters_with_lower_avg_price_per_houses AS (
 	WITH 
+		-- Define the house avg price for each of the selected neighborhoods
 		avg_price_per_selected_neighborhood AS (
 			SELECT n.name AS neighborhood, ROUND(AVG(hs.price), 2) AS avg_price_house_sales, n.perimeter
 			FROM neighborhoods n, house_sales hs
@@ -83,6 +87,7 @@ CREATE VIEW sub_perimeters_with_lower_avg_price_per_houses AS (
 					hs.price <> 0
 			GROUP BY n.name, n.perimeter
 		),
+		-- Define the house avg price for each of the selected sub-neighborhoods
 		avg_price_per_selected_neighborhood_sub_perimeters AS (
 			SELECT 	n.sd_id, ROUND(AVG(hs.price), 2) AS avg_price_house_sales, n.sub_perimeter
 			FROM 	selected_neighborhoods_sub_division n, house_sales hs
@@ -91,6 +96,8 @@ CREATE VIEW sub_perimeters_with_lower_avg_price_per_houses AS (
 					hs.price <> 0				
 			GROUP BY n.sd_id, n.sub_perimeter
 		)
+		-- Retrieve the sub-neighborhoods where house prices are lower than the average of 
+		-- the entire neighborhood
 		SELECT 	avgsp.sd_id, 
 				CONCAT(avgsp.sd_id, ') ', avgn.neighborhood, ' (', b.id, ') ') AS vis_id, avgsp.avg_price_house_sales, 
 				avgsp.sub_perimeter
@@ -100,13 +107,9 @@ CREATE VIEW sub_perimeters_with_lower_avg_price_per_houses AS (
 		ORDER BY avgn.neighborhood, avg_price_house_sales
 );
 
+-- Shows the result of the view
 SELECT * 
 FROM sub_perimeters_with_lower_avg_price_per_houses;
-
--- This query shows the square meters of a specific neighborhood's sub areas.
-SELECT ST_Area(sub_perimeter::geography)
-FROM sub_perimeters_with_lower_avg_price_per_houses
-WHERE sd_id = 103;
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 /*
@@ -114,6 +117,11 @@ WHERE sd_id = 103;
 									*******TRANSPORT STOPS OF A SUB AREA*******
 	This query shows how many bus and subway stops there are in a specific sub area selected from the stakeholder.
 */
+
+-- This query shows the square meters of a specific neighborhood's sub areas.
+SELECT CEIL(ST_Area(sub_perimeter::geography) AS chosen_zone_area
+FROM sub_perimeters_with_lower_avg_price_per_houses
+WHERE sd_id = 103;
 
 CREATE OR REPLACE FUNCTION analyze_sub_neighborhood(id INT)
 RETURNS TABLE (vis_id TEXT, n_subway_stops BIGINT, n_bus_stops BIGINT) AS
@@ -146,3 +154,4 @@ $$
 LANGUAGE 'plpgsql';
 
 SELECT * FROM analyze_sub_neighborhood(103);
+

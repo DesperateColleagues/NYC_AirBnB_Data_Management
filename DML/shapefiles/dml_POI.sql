@@ -1,4 +1,4 @@
--- 0) Insert data into table
+-- Insert data into table
 INSERT INTO poi_types (id)
 	SELECT DISTINCT CAST(facility_t AS INTEGER) 
 	FROM poi_temp;
@@ -7,12 +7,12 @@ INSERT INTO poi (name, domain, poi_type, coordinates)
 	SELECT name, faci_dom, CAST(facility_t AS INTEGER), geom
 	FROM poi_temp;
 
--- 1) Turn the invalid geometries to valid ones
+-- Turn the invalid geometries to valid ones
 UPDATE poi 
 SET coordinates = ST_MakeValid(coordinates)
 WHERE St_IsValid(coordinates) = 'False';
 
--- 3) Fill in the "type_desc" column of the "poi_type" table with the corresponding code description
+-- Fill in the "type_desc" column of the "poi_type" table with the corresponding code description
 CREATE OR REPLACE FUNCTION Fill_poi_type(varchar[])
 RETURNS VOID
 AS $$
@@ -41,7 +41,7 @@ SELECT Fill_poi_type(ARRAY ['Residential',
 							'Miscellaneous' ]);
 
 
--- 4) Update the "domain" column of the "poi" table with the currisponding code description
+-- Update the "domain" column of the "poi" table with the currisponding code description
 CREATE OR REPLACE FUNCTION Update_domain_column(data_ varchar[])
 RETURNS VOID
 AS $$
@@ -77,15 +77,15 @@ SELECT Update_domain_column(ARRAY [ARRAY ['Gated Development', 'Private Developm
 								   ARRAY ['Official Landmark', 'Point of Interest', 'Cemetery/Morgue', 'Other', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
 								  ]);
 			
--- 5) Delete rows where 'domain' colomn value is empty string
+-- Delete rows where 'domain' colomn value is empty string
 DELETE FROM poi 
 WHERE domain LIKE '';
 
--- 6) Delete rows where type_desc is 'Residential', 'Water' or 'Miscellaneous'
+-- Delete rows where type_desc is 'Residential', 'Water' or 'Miscellaneous'
 DELETE FROM poi 
 WHERE poi_type IN (1, 12, 13);
 
--- 7) Delete rows where domain is 'Bus Terminal'
+-- Delete rows where domain is 'Bus Terminal'
 DELETE FROM poi
-WHERE domain = 'Bus Terminal';
+WHERE domain LIKE 'Bus Terminal';
 
