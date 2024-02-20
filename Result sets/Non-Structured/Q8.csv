@@ -1,2 +1,2 @@
-"vis_id","n_subway_stops","n_bus_stops"
-"103) Upper East Side-Lenox Hill-Roosevelt Island (MN) ","11","72"
+"vis_id","n_subway_stops","n_bus_stops","avg_price_ex_band","avg_availability_rate_ex_band","avg_price_house_sales"
+"103) Upper East Side-Lenox Hill-Roosevelt Island (MN) ","6","38","1251","0.65","585000.00"

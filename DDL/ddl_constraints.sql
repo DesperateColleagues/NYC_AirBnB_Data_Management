@@ -1,16 +1,19 @@
 -- Constraints for "boroughs" table
 ALTER TABLE boroughs 
-	ADD CONSTRAINT pk_borough PRIMARY KEY(id);
+	ADD CONSTRAINT pk_borough PRIMARY KEY(id),
+	ADD CONSTRAINT unq_borough_name UNIQUE (name);
 
 -- Constraints for "neighborhoods" table
 ALTER TABLE neighborhoods 
 	ADD CONSTRAINT pk_neighborhoods PRIMARY KEY(id),
+	ADD CONSTRAINT unq_naigh_name UNIQUE (name),
 	ADD CONSTRAINT fk_neighborhoods_borough FOREIGN KEY(borough) REFERENCES boroughs(id) 
 		ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Constraints for "crimes" table
 ALTER TABLE crimes 
-	ADD CONSTRAINT pk_crimes PRIMARY KEY(id);
+	ADD CONSTRAINT pk_crimes PRIMARY KEY(id),
+	ADD CONSTRAINT unq_crime_description UNIQUE (description);
 
 -- Constraints for "arrests" table
 ALTER TABLE arrests
@@ -62,9 +65,11 @@ ALTER TABLE subway_stops
 	ADD CONSTRAINT fk_subway_stops_neighborhood FOREIGN KEY(neighborhood) REFERENCES neighborhoods(id)
 		ON DELETE CASCADE ON UPDATE CASCADE;
 
+
 -- Constraints for "poi_type" table
 ALTER TABLE poi_types
-	ADD CONSTRAINT pk_poi_types PRIMARY KEY(id);
+	ADD CONSTRAINT pk_poi_types PRIMARY KEY(id),
+	ADD CONSTRAINT unq_type_desc UNIQUE (type_desc);
 
 -- Constraints for "poi" table
 ALTER TABLE poi

@@ -59,7 +59,7 @@ CREATE TEMPORARY TABLE house_sales_within_700_meters AS (
 -- The first three roads nearest to the house sales about circa low then 700 mt from the park border 
 -- Extimated execution time -> 2.15 min
 CREATE TEMPORARY TABLE nearest_street_from_house_sales AS (
-	SELECT roads.hs_id, roads.id AS road_id, roads.name AS road_name, roads.dist AS road_dist
+	SELECT roads.hs_id, roads.id AS road_id, roads.name AS road_name, roads.path AS road_path , roads.dist AS road_dist
 	FROM house_sales_within_700_meters hs700
 		CROSS JOIN LATERAL (
 		SELECT r.*, r.path::geography <-> hs700.coordinates::geography AS dist, hs700.id AS hs_id
@@ -75,9 +75,9 @@ WITH
 house_sales_around_cp AS ( -- Find house near to park
 	SELECT DISTINCT nsfhs.hs_id AS id
 	FROM nearest_street_from_house_sales nsfhs, nearest_street_from_park_border_point nsfpbp
-	WHERE nsfhs.road_id = nsfpbp.id  
+	WHERE ST_Equals(nsfhs.road_path, nsfpbp.path)  
 ), 
-house_sales_not_around_cp AS ( -- Find house far from house
+house_sales_not_around_cp AS ( -- Find house far from park
 	SELECT ROUND(AVG(hs1.price), 2) AS avg_price_MN
 	FROM house_sales hs1, neighborhoods n
 	WHERE hs1.neighborhood = n.id AND n.borough LIKE 'MN' AND hs1.id NOT IN (SELECT id FROM house_sales_around_cp)

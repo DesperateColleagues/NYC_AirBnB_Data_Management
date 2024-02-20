@@ -2,7 +2,7 @@
 	Q7
 									
 									********CHEAPER SUB AREAS OF THE NEIGHBORHOODS*******
-									*
+									
 	This query, thanks to the fourth neighborhoods obtained by Q6,  shows for each neighborhood the n sub areas 
 	with:
 	- significant id
