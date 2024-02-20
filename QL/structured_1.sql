@@ -1,7 +1,7 @@
 -- This view holds all the actual resumes, since during the time a single 
 -- bnb_house can have different fares for its rooms, and the rooms in 
 -- this period of time can change too.
-CREATE VIEW actual_resumes AS (
+CREATE OR REPLACE VIEW actual_resumes AS (
 	SELECT *
 	FROM rental_resumes rr1
 	WHERE rr1.id IN (SELECT MAX(rr2.id) 
@@ -13,7 +13,7 @@ CREATE VIEW actual_resumes AS (
 SELECT * FROM actual_resumes;
 
 /*
-	Q1
+	Q premise
 	
 	Find significant rental units, the ones with a number of review 
 	above 50 and a rate between 3.5 and 5
@@ -32,7 +32,7 @@ $$
 		ELSEIF rate BETWEEN 4.50 AND 4.79 THEN
 			SELECT 'very good' INTO band;
 		ELSEIF rate BETWEEN 4.80 AND 5.00 THEN 
-			SELECT 'execellent' INTO band;
+			SELECT 'excellent' INTO band;
 		END IF;
 		
 		RETURN band;
@@ -51,7 +51,7 @@ CREATE OR REPLACE VIEW significant_rental_units AS (
 SELECT * FROM significant_rental_units;
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 /*
-	Q2
+	Q1
 
 	Count how many bnb respects (and not) the new rent compliances rules.
 	Note: This is helpful to understand if the market shifted to long term rents
@@ -115,7 +115,7 @@ SELECT count_compliances(TRUE, FALSE)
 			
 --------------------------------------------------------------------------------------------------------------------------------------------------			
 /*
-	Q3 
+	Q2
 	Find the ideal rental unit, by aggregating data like price, number of beds and bathroo 
     and if the bath is shared or not (since it's a categorical feature the mode can be used to aggregate)
 */
@@ -134,7 +134,7 @@ $$
 			SELECT COUNT(*) INTO n FROM temp_mode tm WHERE tm.rate BETWEEN 4.10 AND 4.49;
 		ELSEIF bnb_band LIKE 'very good' THEN
 			SELECT COUNT(*) INTO n FROM temp_mode tm WHERE tm.rate BETWEEN 4.50 AND 4.79;
-		ELSEIF bnb_band LIKE 'execellent' THEN
+		ELSEIF bnb_band LIKE 'excellent' THEN
 			SELECT COUNT(*) INTO n FROM temp_mode tm WHERE tm.rate BETWEEN 4.80 AND 5.00;
 		END IF;
 		

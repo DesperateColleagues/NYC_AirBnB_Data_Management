@@ -68,7 +68,7 @@ CREATE TEMPORARY TABLE nearest_street_from_house_sales AS (
 		LIMIT 3
 	) AS roads
 );
---TODO MAKE JOIN WITH ST_EQUALS ON THE ROADS
+-- TODO MAKE JOIN WITH ST_EQUALS ON THE ROADS
 
 -- This query shows the final result
 WITH 

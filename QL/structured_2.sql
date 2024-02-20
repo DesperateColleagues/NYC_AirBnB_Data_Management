@@ -1,5 +1,5 @@
 /*
-	Q4
+	Q3
 	List all the borough based on the crime rate from the lower to the higher.
 */
 WITH total_arrests AS (
@@ -13,22 +13,26 @@ WITH total_arrests AS (
 	ORDER BY arrests_rate ASC;
 	
 /*
-	Q5
+	Q4
+	
     Count the bnb number in a specific borough with ideal charatteristics.
 */
 
-SELECT b.name AS borough, COUNT(*) AS number_bnb
-FROM ideal_rental_unit_per_band_rate iru, rental_resumes rs, rental_fares rf, rental_units ru, room_configurations rc, neighborhoods n, boroughs b
-WHERE rf.id = rs.rental_fare AND rc.id = rs.room_configuration AND ru.id = rs.rental_unit AND
+SELECT 	b.name AS borough, COUNT(*) AS number_bnb
+FROM 	ideal_rental_unit_per_band_rate iru, actual_resumes rs, rental_fares rf, 
+		rental_units ru, room_configurations rc, neighborhoods n, boroughs b
+WHERE 	rf.id = rs.rental_fare AND rc.id = rs.room_configuration AND ru.id = rs.rental_unit AND
 		rf.price BETWEEN iru.avg_price-10 AND iru.avg_price+10 AND
 		rc.n_beds = iru.avg_number_of_beds AND rc.n_baths = iru.avg_number_of_baths AND rc.is_bath_shared = iru.mode_bath_shared AND
-		ru.availability_rate_365 BETWEEN iru.avg_availability_rate_365-0.5 AND iru.avg_availability_rate_365+0.5 AND
-		ru.neighborhood = n.id AND n.borough = b.id AND iru.rental_unit_band = 'execellent'
-GROUP BY b.name;
+		ru.availability_rate_365 BETWEEN iru.avg_availability_rate_365-0.1 AND iru.avg_availability_rate_365+0.1 AND
+		ru.neighborhood = n.id AND n.borough = b.id AND iru.rental_unit_band = 'excellent'
+GROUP BY b.name
+ORDER BY number_bnb;
 
 
 /*
-	Q6
+	Q5
+	
 	List all the borough based on the poi, parks, bus and subway stops number.
 */
 CREATE OR REPLACE FUNCTION count_poi_types(poi_type INTEGER, borough_name VARCHAR(255))

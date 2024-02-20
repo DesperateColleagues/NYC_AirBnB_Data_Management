@@ -1,0 +1,6 @@
+"borough","bus_stops_count","subway_stops_count","commercial_poi_count","health_services_poi_count","recreational_poi_count"
+"Bronx","566","71",82,57,753
+"Brooklyn","871","170",245,44,1161
+"Manhattan","717","153",431,112,973
+"Queens","968","84",168,38,798
+"Staten Island","208","23",96,19,326

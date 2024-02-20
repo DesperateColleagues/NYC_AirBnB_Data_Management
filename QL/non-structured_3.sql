@@ -49,7 +49,7 @@ $$
 LANGUAGE 'plpgsql';
 
 -- Materialize the table obtained by the function
-CREATE TEMPORARY TABLE selected_neighborhoods_sub_division AS ( 
+CREATE TABLE selected_neighborhoods_sub_division AS ( 
 	SELECT * FROM get_neighborhood_sub_divisions('Upper East Side-Lenox Hill-Roosevelt Island', 45)
 	
 	UNION
@@ -74,7 +74,7 @@ CREATE INDEX selected_neighborhoods_sub_division_idx
 	ON selected_neighborhoods_sub_division
 	USING GIST(sub_perimeter);
 	
-CREATE VIEW sub_perimeters_with_lower_avg_price_per_houses AS (
+CREATE MATERIALIZED VIEW sub_perimeters_with_lower_avg_price_per_houses AS (
 	WITH 
 		-- Define the house avg price for each of the selected neighborhoods
 		avg_price_per_selected_neighborhood AS (
@@ -114,44 +114,73 @@ FROM sub_perimeters_with_lower_avg_price_per_houses;
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 /*
 	Q8
-									*******TRANSPORT STOPS OF A SUB AREA*******
+									******* TRANSPORT STOPS OF A SUB AREA *******
 									
 	This query shows how many bus and subway stops there are in a specific sub area selected from the stakeholder.
 */
 -- This query shows the square meters of a specific neighborhood's sub areas.
-SELECT ROUND(SQRT(ST_Area(sub_perimeter::geography)/(3140))::DECIMAL, 2) AS chosen_zone_radius_km
+SELECT CEIL(SQRT(ST_Area(sub_perimeter::geography)/(3.14))::DECIMAL) * 2 AS chosen_zone_diamater_meter
 FROM sub_perimeters_with_lower_avg_price_per_houses
 WHERE sd_id = 103;
 
 CREATE OR REPLACE FUNCTION analyze_sub_neighborhood(id INT)
-RETURNS TABLE (vis_id TEXT, n_subway_stops BIGINT, n_bus_stops BIGINT) AS
+RETURNS TABLE (vis_id TEXT, n_subway_stops BIGINT, n_bus_stops BIGINT, 
+			   avg_price_ex_band DECIMAL, avg_availability_rate_ex_band DECIMAL, avg_price_house_sales DECIMAL) AS
 $$
 	BEGIN
 		RETURN QUERY
 			WITH 
 			selected_sub_perimeter AS (
-				SELECT * 
-				FROM sub_perimeters_with_lower_avg_price_per_houses a
-				WHERE a.sd_id = $1
+				SELECT 	* 
+				FROM 	sub_perimeters_with_lower_avg_price_per_houses a
+				WHERE 	a.sd_id = $1
 			), 
 			selected_sub_perimeter_subway_stops AS(
-				SELECT ssp.sd_id, COUNT(*) AS n
-				FROM selected_sub_perimeter ssp, subway_stops ss
-				WHERE ST_DWithin(ST_Centroid(ssp.sub_perimeter)::geography, ss.coordinates::geography, 1500)
+				SELECT 	ssp.sd_id, COUNT(*) AS n
+				FROM 	selected_sub_perimeter ssp, subway_stops ss
+				WHERE 	ST_DWithin(ST_Centroid(ssp.sub_perimeter)::geography, ss.coordinates::geography, 1000)
 				GROUP BY ssp.sd_id
 			),
 			selected_sub_perimeter_bus_stops AS (
-				SELECT ssp.sd_id, COUNT(*) AS n
-				FROM selected_sub_perimeter ssp, bus_stops bs
-				WHERE ST_DWithin(ST_Centroid(ssp.sub_perimeter)::geography, bs.coordinates::geography, 1500)
+				SELECT 	ssp.sd_id, COUNT(*) AS n
+				FROM 	selected_sub_perimeter ssp, bus_stops bs
+				WHERE 	ST_DWithin(ST_Centroid(ssp.sub_perimeter)::geography, bs.coordinates::geography, 1000)
+				GROUP BY ssp.sd_id
+			),
+			selected_sub_perimeter_rental_units AS (
+				SELECT 	ssp.sd_id, 
+						AVG(rf.price) AS avg_price_ex_band, 
+						AVG(ru.availability_rate_365) AS avg_availability_rate_ex_band
+				FROM 	selected_sub_perimeter ssp, rental_units ru, actual_resumes ar, rental_fares rf
+				WHERE 	rf.id = ar.rental_fare AND
+						ru.id = ar.rental_unit AND
+						ru.rate BETWEEN 4.80 AND 5.00 AND 
+						ru.number_of_reviews > 50 AND
+						ST_DWithin(ST_Centroid(ssp.sub_perimeter)::geography, ru.coordinates::geography, 1000)
 				GROUP BY ssp.sd_id
 			)
-			SELECT s_perim.vis_id, ss.n AS number_subway_stops, bs.n AS mumber_bus_stops
-			FROM selected_sub_perimeter s_perim, selected_sub_perimeter_subway_stops ss, selected_sub_perimeter_bus_stops bs
-			WHERE s_perim.sd_id = ss.sd_id AND ss.sd_id = bs.sd_id;
+			SELECT 	s_perim.vis_id, 
+					ss.n AS number_subway_stops, 
+					bs.n AS number_bus_stops,
+					CEIL(sru.avg_price_ex_band), 
+					ROUND(sru.avg_availability_rate_ex_band, 2),
+					s_perim.avg_price_house_sales
+			FROM 	selected_sub_perimeter s_perim, 
+					selected_sub_perimeter_subway_stops ss, 
+					selected_sub_perimeter_bus_stops bs,
+					selected_sub_perimeter_rental_units sru
+			WHERE 	s_perim.sd_id = ss.sd_id AND ss.sd_id = bs.sd_id AND s_perim.sd_id = sru.sd_id;
 	END;
 $$
 LANGUAGE 'plpgsql';
 
+-- Shows bus stops and subway stops in a distance of 1km from the center
 SELECT * FROM analyze_sub_neighborhood(103);
 
+-- Everything in this analysis comes in full circle. Central Park
+-- (the place around which the stakeholder wanted to check house price to open its B&B in Q1) 
+-- is just 1km distant from the selected area.
+SELECT ROUND(ST_Distance(a.sub_perimeter::geography, 
+						 p.perimeter::geography)::DECIMAL / 1000, 2) AS dist_from_central_park_km
+FROM sub_perimeters_with_lower_avg_price_per_houses a, parks p
+WHERE a.sd_id = 103 AND p.name = 'Central Park';
