@@ -23,6 +23,5 @@ The datasets can be found in the **datasets** folder. A few notes about it:
 | nyc_borough_boundaries.zip    | Shapefile with New York City neighborhood areas                                                      | $10^2$ |
 | nyc_roads.zip                 | Shapefile with road lines in New York City                                                           | $10^3$ |
 | nyc_parks.zip                 | Shapefile with New York City parks' areas                                                            | $10^2$ |
-| nyc_taxi_zones.zip            | Shapefile with taxi stops zones (it does not contain the stops, but only areas per each NYC borough) | $10^6$ |
 | nyc_bus_stops_shelters.zip    | Shapefile with the bus stops locations (points) in New York City                                     | $10^3$ |
 | nyc_points_of_Interest.zip    | Shapefile with POI (monuments, schools...) in New York City                                          | $10^5$ |
