@@ -200,7 +200,7 @@ CREATE MATERIALIZED VIEW transport_stops_within_1km_from_sru  AS (
 	GROUP BY id, name, neighborhood
 );
 
-SELECT MAX(bnb_with_more_transport) FROM transport_stops_within_1km_from_sru;  --show the max number of transport stops for the BnBs = 83
+SELECT MAX(number_transport_stop) FROM transport_stops_within_1km_from_sru;  --show the max number of transport stops for the BnBs = 83
 
 -- Count for each neighborhood the number of BnB that are closer to more transport stops in an area of 1km
 CREATE OR REPLACE VIEW ruTransports_per_neighborhood AS (
@@ -241,8 +241,7 @@ CREATE INDEX sru_circle_500_meter_idx
 -- from a significant rental unit. The poi to be counted are selected from the 
 -- input parameter
 CREATE OR REPLACE FUNCTION count_poi_in_sru_500_meters_ares(dom_list TEXT[])
-RETURNS TABLE (id BIGINT, neighborhood VARCHAR(100), tot BIGINT)
-LANGUAGE 'plpgsql' AS 
+RETURNS TABLE (id BIGINT, neighborhood VARCHAR(100), tot BIGINT) AS 
 $$
 BEGIN
 	RETURN QUERY
@@ -254,7 +253,7 @@ BEGIN
 		GROUP BY sru500.id, n.name;
 END;
 $$
-
+LANGUAGE 'plpgsql';
 
 -- Q6.1
 CREATE MATERIALIZED VIEW ruRoutine_per_neighborhood AS (
